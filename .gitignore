@@ -1,0 +1,20 @@
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+
+# Ignore virtual environment directories
+venv/
+
+# Ignore data directories (input and output data)
+data/input/
+data/output/
+
+# Ignore logs and temporary files
+*.log
+logs/
+
+# Ignore Hadoop output files
+_*  # e.g., _SUCCESS
+
+# Ignore macOS specific files
+.DS_Store

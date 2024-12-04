@@ -1,0 +1,28 @@
+For each key (i, j):
+    // Initialize dictionaries to store blocks from A and B
+    A_blocks = empty dictionary
+    B_blocks = empty dictionary
+
+    // Partition values into A_blocks and B_blocks
+    For each value in values:
+        MatrixName = value[0]
+        k = value[1]
+        BlockData = value[2]
+
+        if MatrixName == 'A':
+            A_blocks[k] = BlockData
+        else if MatrixName == 'B':
+            B_blocks[k] = BlockData
+
+    // Initialize result block C_ij as zero matrix
+    C_ij = zero matrix of appropriate size
+
+    // Multiply and accumulate over k
+    For each k in intersection of keys in A_blocks and B_blocks:
+        A_block = A_blocks[k]
+        B_block = B_blocks[k]
+        // Perform block multiplication
+        C_ij += MultiplyBlocks(A_block, B_block)
+
+    // Emit the resulting block
+    Emit((i, j), C_ij)
