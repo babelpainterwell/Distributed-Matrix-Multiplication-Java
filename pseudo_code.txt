@@ -1,0 +1,21 @@
+For each input record:
+    if record corresponds to a block from matrix A:
+        MatrixName = 'A'
+        i = block row index of A
+        k = block column index of A
+        A_block = block data
+        // Emit A_block to all reducers responsible for computing C_ij
+        for j from 0 to numBlockColsC - 1:
+            key = (i, j)
+            value = (MatrixName, k, A_block)
+            Emit(key, value)
+    else if record corresponds to a block from matrix B:
+        MatrixName = 'B'
+        k = block row index of B
+        j = block column index of B
+        B_block = block data
+        // Emit B_block to all reducers responsible for computing C_ij
+        for i from 0 to numBlockRowsC - 1:
+            key = (i, j)
+            value = (MatrixName, k, B_block)
+            Emit(key, value)
