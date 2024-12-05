@@ -28,3 +28,5 @@ Each mapper receives input data via stdin (standard input), which reads data fro
 The input files need to be formatted in a way that the mapper can understand.
 In our case, each line in the input files is a JSON-formatted string representing a block of the matrix.
 The generate_matrices.py script creates these files and writes the data in the required format.
+
+With only four keys and four reducers, it's possible (and in this case, evident) that some reducers process multiple keys while others process none.
