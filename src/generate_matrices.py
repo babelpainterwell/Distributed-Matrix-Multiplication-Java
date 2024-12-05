@@ -26,6 +26,7 @@ def partition_matrix(matrix, block_size, matrix_name, output_dir):
             }
 
             output_path = os.path.join(output_dir, f'part_{i}_{j}')
+            # format the data as json and write to file
             with open(output_path, 'w') as f:
                 json.dump(block_data, f)
 
@@ -45,9 +46,7 @@ def main():
 
     print('Generating matrices...')
     A = generate_matrix(args.m, args.n)
-    print(A)
     B = generate_matrix(args.n, args.p)
-    print(B)
 
     print('Partitioning matrices...')
     partition_matrix(A, args.block_size, 'A', A_output_dir)
