@@ -7,11 +7,11 @@ jar.path=target/${jar.name}
 job.name=matrixmultiply.MatrixMultiplyDriver
 
 # Specify matrix dimensions and block size
-A_ROWS=400
-A_COLS=600
-B_ROWS=600
-B_COLS=400
-BLOCK=200
+A_ROWS=40000
+A_COLS=60000
+B_ROWS=60000
+B_COLS=40000
+BLOCK=2000
 
 # Compute block-level dimensions using awk for integer division
 numBlockRowsA=$(shell awk 'BEGIN{print int('$(A_ROWS)'/'$(BLOCK)')}')
@@ -22,7 +22,7 @@ numBlockRowsC=$(shell awk 'BEGIN{print int('$(A_ROWS)'/'$(BLOCK)')}')
 numBlockColsC=$(shell awk 'BEGIN{print int('$(B_COLS)'/'$(BLOCK)')}')
 
 # Local and AWS variables
-local.input=input
+local.input=input-large
 local.output=output-local
 local.log-local=log-local
 
@@ -41,19 +41,22 @@ aws.instance.type=m4.large
 jar:
 	mvn clean package
 
-clean-local-output:
-	rm -rf ${local.output}*
-	rm -rf ${local.log-local}*
+clean-local-input:
 	rm -rf ${local.input}
 
 ensure-log-dir:
 	mkdir -p ${local.log-local}
 
+clean-local-output:
+	rm -rf ${local.output}*
+	rm -rf ${local.log-local}*
+
+
 # GIVEN BY CHATGPT
 # GIVEN BY CHATGPT
 # GIVEN BY CHATGPT
 # Generate synthetic data for matrix multiplication as a separate step
-generate-data: clean-local-output
+generate-data: clean-local-input
 	@echo "Generating data with A: $(A_ROWS)x$(A_COLS), B: $(B_ROWS)x$(B_COLS), block=$(BLOCK)"
 	@echo "A_block_rows=$(numBlockRowsA), A_block_cols=$(numBlockColsA), B_block_rows=$(numBlockRowsB), B_block_cols=$(numBlockColsB)"
 	mkdir -p ${local.input}
@@ -88,9 +91,9 @@ generate-data: clean-local-output
 
 # Runs the program locally
 # Run 'make generate-data' first 
-local: jar ensure-log-dir
+local: clean-local-output jar ensure-log-dir
 	@echo "numBlockRowsC=$(numBlockRowsC), numBlockColsC=$(numBlockColsC)"
-	hadoop jar ${jar.path} ${job.name} ${local.input} ${local.output} $(numBlockRowsC) $(numBlockColsC) > ${local.log-local}/mapreduce-job.log 2>&1 || (cat ${local.log-local}/mapreduce-job.log && false)
+	hadoop jar ${jar.path} ${local.input} ${local.output} $(numBlockRowsC) $(numBlockColsC) > ${local.log-local}/mapreduce-job.log 2>&1 || (cat ${local.log-local}/mapreduce-job.log && false)
 
 make-bucket:
 	aws s3 mb s3://${aws.bucket.name} --region ${aws.region} || true
@@ -111,7 +114,7 @@ aws: upload-app-aws upload-input-aws delete-output-aws
 		--region ${aws.region} \
 		--instance-groups '[{"InstanceCount":'${aws.primary.num.nodes}',"InstanceGroupType":"MASTER","InstanceType":"'${aws.instance.type}'"},{"InstanceCount":'${aws.core.num.nodes}',"InstanceGroupType":"CORE","InstanceType":"'${aws.instance.type}'"}]' \
 		--applications Name=Hadoop \
-		--steps '[{"Args":["matrixmultiply.MatrixMultiplyDriver","s3a://'${aws.bucket.name}'/'${aws.input}'","s3a://'${aws.bucket.name}'/'${aws.output}'","'$(numBlockRowsC)'","'$(numBlockColsC)'"],"Type":"CUSTOM_JAR","Jar":"s3a://'${aws.bucket.name}'/'${jar.name}'","ActionOnFailure":"TERMINATE_CLUSTER","Name":"MatrixMultiplyJob"}]' \
+		--steps '[{"Args":["s3://'${aws.bucket.name}'/'${aws.input}'","s3://'${aws.bucket.name}'/'${aws.output}'","$(numBlockRowsC)","$(numBlockColsC)"], "Type":"CUSTOM_JAR","Jar":"s3://'${aws.bucket.name}'/'${jar.name}'","ActionOnFailure":"TERMINATE_CLUSTER","Name":"MatrixMultiplyJob"}]' \
 		--log-uri s3://${aws.bucket.name}/${aws.log.dir} \
 		--use-default-roles \
 		--enable-debugging \

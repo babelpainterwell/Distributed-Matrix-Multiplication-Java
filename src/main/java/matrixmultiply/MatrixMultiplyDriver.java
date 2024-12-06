@@ -23,10 +23,10 @@ public class MatrixMultiplyDriver {
         // System.out.println("args[2]: " + args[2]);
         // System.out.println("args[3]: " + args[3]);
 
-        String inputPath = args[1];
-        String outputPath = args[2];
-        int numBlockRowsC = Integer.parseInt(args[3]);
-        int numBlockColsC = Integer.parseInt(args[4]);
+        String inputPath = args[0];
+        String outputPath = args[1];
+        int numBlockRowsC = Integer.parseInt(args[2]);
+        int numBlockColsC = Integer.parseInt(args[3]);
 
         Configuration conf = new Configuration();
         conf.setInt("numBlockRowsC", numBlockRowsC);
@@ -47,7 +47,8 @@ public class MatrixMultiplyDriver {
         TextInputFormat.addInputPath(job, new Path(inputPath));
         Path outputDir = new Path(outputPath);
 
-        FileSystem fs = FileSystem.get(conf);
+        // fetching the file system from the output path itself
+        FileSystem fs = outputDir.getFileSystem(conf);
         if (fs.exists(outputDir)) {
             fs.delete(outputDir, true);
         }

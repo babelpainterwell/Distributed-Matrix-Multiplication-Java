@@ -7,6 +7,7 @@ log/
 
 # Input & Output
 input/
+input-large/
 output-local/
 
 # OS-specific files
