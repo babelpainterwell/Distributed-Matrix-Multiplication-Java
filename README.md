@@ -25,8 +25,38 @@ Each mapper receives input data via stdin (standard input), which reads data fro
 
 #### Input Data Format:
 
-The input files need to be formatted in a way that the mapper can understand.
-In our case, each line in the input files is a JSON-formatted string representing a block of the matrix.
-The generate_matrices.py script creates these files and writes the data in the required format.
+Data Format for Input Blocks: Assume each line in the input files describes one block. For example:
 
-With only four keys and four reducers, it's possible (and in this case, evident) that some reducers process multiple keys while others process none.
+css
+Copy code
+A i k 1,2;3,4
+A indicates a block from matrix A.
+i, k are the block’s row and column indices for matrix A.
+1,2;3,4 represents the block’s rows and columns (two rows: [1,2] and [3,4]).
+
+Similarly, for B:
+
+css
+Copy code
+B k j 5,6;7,8
+B indicates a block from matrix B.
+k, j are the block’s row and column indices for matrix B.
+
+Driver Class (MatrixMultiplyDriver.java): The driver class will:
+
+- Parse command-line arguments: inputPath, outputPath, numBlockRowsC, numBlockColsC.
+- Set these values in the Configuration.
+  Configure the job (mapper, reducer, output key/value classes, input/output format).
+- Run the job and exit based on success/failure.
+
+Mapper (MatrixMultiplyMapper.java): The mapper reads one line at a time. For each line:
+
+- Parse the matrix name (A or B), the indices (i,k or k,j), and the block data.
+- If the block is from A, for each j in [0..numBlockColsC-1], emit (i,j) as key and a value like A,k,blockData.
+- If the block is from B, for each i in [0..numBlockRowsC-1], emit (i,j) as key and B,k,blockData.
+
+Reducer (MatrixMultiplyReducer.java): The reducer receives all values for a key (i,j).
+
+- Partition values into A_blocks and B_blocks based on k.
+- Multiply corresponding A_blocks and B_blocks to produce C_ij.
+  Emit (i,j) and the resulting C_ij block.
