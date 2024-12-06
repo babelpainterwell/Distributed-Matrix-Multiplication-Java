@@ -17,12 +17,11 @@ public class BlockPartitioner extends Partitioner<Text, Text> implements Configu
         this.numBlockRowsC = conf.getInt("numBlockRowsC", 1);
         this.numBlockColsC = conf.getInt("numBlockColsC", 1);
     }
-
     @Override
     public Configuration getConf() {
         return this.conf;
     }
-
+    
     @Override
     public int getPartition(Text key, Text value, int numReduceTasks) {
         // Key format: "i_j"

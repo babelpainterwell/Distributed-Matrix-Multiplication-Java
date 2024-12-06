@@ -2,8 +2,8 @@
 target/
 
 # Logs
-log-local/
-log/
+# log-local/
+# log/
 
 # Input & Output
 input/
