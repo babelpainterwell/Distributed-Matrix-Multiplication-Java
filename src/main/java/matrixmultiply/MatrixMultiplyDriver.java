@@ -34,9 +34,9 @@ public class MatrixMultiplyDriver {
 
         Job job = Job.getInstance(conf, "Block Matrix Multiplication");
         job.setJarByClass(MatrixMultiplyDriver.class);
+
         job.setMapperClass(MatrixMultiplyMapper.class);
         job.setReducerClass(MatrixMultiplyReducer.class);
-
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
         job.setOutputKeyClass(Text.class);
@@ -57,6 +57,9 @@ public class MatrixMultiplyDriver {
         // Set the number of reducers to the number of C blocks
         int numReducers = numBlockRowsC * numBlockColsC;
         job.setNumReduceTasks(numReducers);
+
+        // Set custom partitioner to ensure each (i,j) goes to a unique reducer
+        job.setPartitionerClass(BlockPartitioner.class);
 
         boolean success = job.waitForCompletion(true);
         System.exit(success ? 0 : 1);

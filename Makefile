@@ -51,6 +51,10 @@ clean-local-output:
 ensure-log-dir:
 	mkdir -p ${local.log-local}
 
+
+# GIVEN BY CHATGPT
+# GIVEN BY CHATGPT
+# GIVEN BY CHATGPT
 # Generate synthetic data for matrix multiplication in a single shell invocation
 generate-data:
 	@echo "Generating data with A: $(A_ROWS)x$(A_COLS), B: $(B_ROWS)x$(B_COLS), block=$(BLOCK)"

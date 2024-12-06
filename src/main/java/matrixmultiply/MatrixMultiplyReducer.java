@@ -33,6 +33,7 @@ public class MatrixMultiplyReducer extends Reducer<Text, Text, Text, Text> {
 
         for (Text val : values) {
             String[] parts = val.toString().split("\\s+", 3);
+            if (parts.length < 3) continue;
             // parts[0] = A or B
             // parts[1] = k
             // parts[2] = blockData
@@ -51,7 +52,6 @@ public class MatrixMultiplyReducer extends Reducer<Text, Text, Text, Text> {
         // Multiply
         // The result block size depends on A block rows and B block columns
         // Assuming A and B blocks are compatible:
-        // Let's take dimensions from first A block if available
         double[][] C_ij = null; // initialize result block to null
 
         // For each k in intersection
