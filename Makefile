@@ -7,21 +7,19 @@ jar.path=target/${jar.name}
 job.name=matrixmultiply.MatrixMultiplyDriver
 
 # Specify matrix dimensions and block size
-A_ROWS=4
-A_COLS=6
-B_ROWS=6
-B_COLS=4
-BLOCK=2
+A_ROWS=400
+A_COLS=600
+B_ROWS=600
+B_COLS=400
+BLOCK=200
 
-# Compute dimensions using awk to ensure integer division
+# Compute block-level dimensions using awk for integer division
 numBlockRowsA=$(shell awk 'BEGIN{print int('$(A_ROWS)'/'$(BLOCK)')}')
 numBlockColsA=$(shell awk 'BEGIN{print int('$(A_COLS)'/'$(BLOCK)')}')
 numBlockRowsB=$(shell awk 'BEGIN{print int('$(B_ROWS)'/'$(BLOCK)')}')
 numBlockColsB=$(shell awk 'BEGIN{print int('$(B_COLS)'/'$(BLOCK)')}')
 numBlockRowsC=$(shell awk 'BEGIN{print int('$(A_ROWS)'/'$(BLOCK)')}')
 numBlockColsC=$(shell awk 'BEGIN{print int('$(B_COLS)'/'$(BLOCK)')}')
-
-
 
 # Local and AWS variables
 local.input=input
@@ -36,7 +34,7 @@ aws.output=output
 aws.log.dir=log
 aws.primary.num.nodes=1
 aws.core.num.nodes=5
-aws.instance.type=m5.xlarge
+aws.instance.type=m4.large
 
 # -----------------------------------------------------------
 
@@ -51,17 +49,14 @@ clean-local-output:
 ensure-log-dir:
 	mkdir -p ${local.log-local}
 
-
 # GIVEN BY CHATGPT
 # GIVEN BY CHATGPT
 # GIVEN BY CHATGPT
-# Generate synthetic data for matrix multiplication in a single shell invocation
-generate-data:
+# Generate synthetic data for matrix multiplication as a separate step
+generate-data: clean-local-output
 	@echo "Generating data with A: $(A_ROWS)x$(A_COLS), B: $(B_ROWS)x$(B_COLS), block=$(BLOCK)"
 	@echo "A_block_rows=$(numBlockRowsA), A_block_cols=$(numBlockColsA), B_block_rows=$(numBlockRowsB), B_block_cols=$(numBlockColsB)"
 	mkdir -p ${local.input}
-	rm -f ${local.input}/A_blocks.txt ${local.input}/B_blocks.txt
-	# Generate A and B blocks in one go:
 	@for (( i=0; i<$(numBlockRowsA); i++ )); do \
 	  for (( k=0; k<$(numBlockColsA); k++ )); do \
 	    block_data=""; \
@@ -91,14 +86,16 @@ generate-data:
 	  done; \
 	done;
 
-local: clean-local-output jar ensure-log-dir generate-data
+# Runs the program locally
+# Run 'make generate-data' first 
+local: jar ensure-log-dir
 	@echo "numBlockRowsC=$(numBlockRowsC), numBlockColsC=$(numBlockColsC)"
 	hadoop jar ${jar.path} ${job.name} ${local.input} ${local.output} $(numBlockRowsC) $(numBlockColsC) > ${local.log-local}/mapreduce-job.log 2>&1 || (cat ${local.log-local}/mapreduce-job.log && false)
 
 make-bucket:
 	aws s3 mb s3://${aws.bucket.name} --region ${aws.region} || true
 
-upload-input-aws: make-bucket generate-data
+upload-input-aws: make-bucket 
 	aws s3 sync ${local.input} s3://${aws.bucket.name}/${aws.input} --region ${aws.region}
 
 delete-output-aws:
