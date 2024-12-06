@@ -1,20 +1,13 @@
-# Ignore Python compiled files
-__pycache__/
-*.pyc
+# Maven target directory
+target/
 
-# Ignore virtual environment directories
-venv/
+# Logs
+log-local/
+log/
 
-# Ignore data directories 
-data/input/
-data/output/
+# Input & Output
+input/
+output-local/
 
-# Ignore logs and temporary files
-*.log
-logs/
-
-# Ignore Hadoop output files
-_*  # e.g., _SUCCESS
-
-# Ignore macOS specific files
+# OS-specific files
 .DS_Store

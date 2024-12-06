@@ -11,15 +11,22 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 public class MatrixMultiplyDriver {
     public static void main(String[] args) throws Exception {
+
         if (args.length < 4) {
             System.err.println("Usage: MatrixMultiplyDriver <input> <output> <numBlockRowsC> <numBlockColsC>");
             System.exit(-1);
         }
 
-        String inputPath = args[0];
-        String outputPath = args[1];
-        int numBlockRowsC = Integer.parseInt(args[2]);
-        int numBlockColsC = Integer.parseInt(args[3]);
+        // System.out.println("args.length: " + args.length);
+        // System.out.println("args[0]: " + args[0]);
+        // System.out.println("args[1]: " + args[1]);
+        // System.out.println("args[2]: " + args[2]);
+        // System.out.println("args[3]: " + args[3]);
+
+        String inputPath = args[1];
+        String outputPath = args[2];
+        int numBlockRowsC = Integer.parseInt(args[3]);
+        int numBlockColsC = Integer.parseInt(args[4]);
 
         Configuration conf = new Configuration();
         conf.setInt("numBlockRowsC", numBlockRowsC);
@@ -46,6 +53,10 @@ public class MatrixMultiplyDriver {
         }
 
         TextOutputFormat.setOutputPath(job, outputDir);
+
+        // Set the number of reducers to the number of C blocks
+        int numReducers = numBlockRowsC * numBlockColsC;
+        job.setNumReduceTasks(numReducers);
 
         boolean success = job.waitForCompletion(true);
         System.exit(success ? 0 : 1);
