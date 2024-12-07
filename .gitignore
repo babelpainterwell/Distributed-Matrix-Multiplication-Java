@@ -19,3 +19,5 @@ output-aws-*/
 .DS_Store
 
 
+full_data/
+base_data/
