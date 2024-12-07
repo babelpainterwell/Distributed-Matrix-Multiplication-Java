@@ -1,14 +1,21 @@
 # Maven target directory
 target/
 
-# Logs
-# log-local/
-# log/
+# Logs and related directories (local, AWS, etc.)
+log/
+log-*/
+log-local-*/
+log-aws-*/
+*.log
 
-# Input & Output
-input/
-input-large/
-output-local/
+# Input & Output (local, AWS, or otherwise)
+input*/
+output*/
+output-*/
+output-local-*/
+output-aws-*/
 
 # OS-specific files
 .DS_Store
+
+
