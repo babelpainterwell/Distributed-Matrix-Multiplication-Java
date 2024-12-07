@@ -126,11 +126,13 @@ When running on AWS EMR, we can specify parameters such as CLUSTER_CORE_NODES to
 
 ```bash
 make aws
+make aws CLUSTER_CORE_NODES=6
 ```
 
 Or specify both BLOCK_SIZE and number of core nodes:
 
 ```bash
+make aws BLOCK_SIZE=500
 make aws BLOCK_SIZE=500 CLUSTER_CORE_NODES=6
 ```
 
@@ -143,9 +145,11 @@ This will:
 Once the job completes, we can download the output results:
 
 ```bash
+# Download output from AWS
 make download-output-aws
+make download-output-aws CLUSTER_CORE_NODES=6
 
-# Or with block size and core nodes
-
+# Download output with block size 500
+make download-output-aws BLOCK_SIZE=500
 make download-output-aws BLOCK_SIZE=500 CLUSTER_CORE_NODES=6
 ```
